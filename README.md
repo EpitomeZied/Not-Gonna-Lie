@@ -1,6 +1,6 @@
-# ASKME
+# NGL
 
-ASKME is a simple command-line application that simulates an anonymous Q&A platform. Users can register, log in, ask questions to other users (optionally anonymously), answer incoming questions, and browse conversations stored in local text files.
+NGL is a simple command-line application that simulates an anonymous Q&A platform. Users can register, log in, ask questions to other users (optionally anonymously), answer incoming questions, and browse conversations stored in local text files.
 
 ## Features
 - Register and authenticate users with a username/password pair.
@@ -27,12 +27,12 @@ ASKME is a simple command-line application that simulates an anonymous Q&A platf
    cmake --build .
    ```
 
-The resulting binary will be available as `ASKME` inside the `build` directory.
+The resulting binary will be available as `NGL` inside the `build` directory.
 
 ## Running
 From the `build` directory (after building), run:
 ```bash
-./ASKME
+./NGL
 ```
 
 On first run, the application will create the required data files (`users.txt`, `questions.txt`, `answers.txt`, and the accompanying ID trackers) in the working directory if they do not already exist. Keep these files in the same directory as the executable to retain application state between runs.
