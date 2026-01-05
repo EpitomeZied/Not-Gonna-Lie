@@ -84,11 +84,36 @@ vector<string> split_csv(const string &s, char delim = ',') {
     return res;
 }
 
+void ensure_file_exists(const string &path, const string &initial_value = "") {
+    ifstream in(path);
+    if (in.good())
+        return;
+
+    ofstream out(path);
+    out << initial_value;
+}
+
+void ensure_data_files() {
+    ensure_file_exists(user_path);
+    ensure_file_exists(question_path);
+    ensure_file_exists(answer_path);
+
+    ensure_file_exists(user_id_path, "0");
+    ensure_file_exists(question_id_path, "0");
+    ensure_file_exists(answer_id_path, "0");
+}
+
 void load_users() {
     ifstream in(user_path);
     string line;
     while (getline(in, line)) {
+        if (line.empty())
+            continue;
+
         auto v = split_csv(line);
+        if (v.size() != 4)
+            continue;
+
         users.emplace_back(stoi(v[0]), v[1], v[2], v[3]);
     }
 }
@@ -97,8 +122,15 @@ void load_questions() {
     ifstream in(question_path);
     string line;
     while (getline(in, line)) {
+        if (line.empty())
+            continue;
+
         auto v = split_csv(line);
-        questions.emplace_back(stoi(v[0]), v[1], v[2], v[3][0]-'0', v[4]);
+        if (v.size() != 5)
+            continue;
+
+        bool state = v[3] == "1" || v[3] == "true" || v[3] == "True";
+        questions.emplace_back(stoi(v[0]), v[1], v[2], state, v[4]);
     }
 }
 
@@ -106,7 +138,13 @@ void load_answers() {
     ifstream in(answer_path);
     string line;
     while (getline(in, line)) {
+        if (line.empty())
+            continue;
+
         auto v = split_csv(line);
+        if (v.size() != 3)
+            continue;
+
         answers.emplace_back(stoi(v[0]), stoi(v[1]), v[2]);
     }
 }
@@ -114,7 +152,8 @@ void load_answers() {
 int generate_id(const string &path) {
     int id = 0;
     ifstream in(path);
-    in >> id;
+    if (in)
+        in >> id;
     in.close();
     ofstream out(path);
     out << id + 1;
@@ -269,6 +308,13 @@ void Register() {
     cout << "Password: ";
     cin >> p;
 
+    auto existing = find_if(users.begin(), users.end(),
+        [&](const User &user) { return user.get_username() == u; });
+    if (existing != users.end()) {
+        cout << "Username already exists\n";
+        return;
+    }
+
     int id = generate_id(user_id_path);
     users.emplace_back(id, name, u, p);
     ofstream out(user_path, ios::app);
@@ -277,6 +323,7 @@ void Register() {
 }
 
 int main() {
+    ensure_data_files();
     load_users();
     load_questions();
     load_answers();
